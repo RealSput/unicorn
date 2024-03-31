@@ -4,14 +4,15 @@ A funny encryption algorithm I made for fun
 
 # Usage
 ```js
+let unicorn = require('./unicorn');
 // encrypting
 let s = fs.readFileSync('lorem_ipsum.txt').toString(); // reads a file containing Lorem ipsum filler text
-let v = encrypt_blocks(s, 'keys'); // encrypts lorem ipsum & saves keys to a folder named 'keys'
-fs.writeFileSync('.encrypted', export_blocks(v)); // exports encrypted result to a file named .encrypted
+let v = unicorn.encrypt_blocks(s, 'keys'); // encrypts lorem ipsum & saves keys to a folder named 'keys'
+fs.writeFileSync('.encrypted', unicorn.export_blocks(v)); // exports encrypted result to a file named .encrypted
 
 // decrypting, in a scenario where we are in a different script
-let decoded = decode_blocks(fs.readFileSync('.encrypted').toString()); // reads encrypted file + decodes it into machine-readable data
-let x = decrypt_blocks(decoded, 'keys'); // decrypts machine-readable blocks into plain text
+let decoded = unicorn.decode_blocks(fs.readFileSync('.encrypted').toString()); // reads encrypted file + decodes it into machine-readable data
+let x = unicorn.decrypt_blocks(decoded, 'keys'); // decrypts machine-readable blocks into plain text
 console.log(x); // Lorem ipsum dolor sit amet...
 ```
 
