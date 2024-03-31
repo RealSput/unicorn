@@ -146,14 +146,5 @@ let export_blocks = (blocks) => {
 let decode_blocks = (b) => {
     return b.split('​').map(x => x.split(' ').map(x => parseInt(x, 16)).map(x => String.fromCharCode(x)).join(''));
 }
-// encrypting
-let s = fs.readFileSync('lorem_ipsum.txt').toString(); // reads a file containing Lorem ipsum filler text
-let v = encrypt_blocks(s, 'keys'); // encrypts lorem ipsum & saves keys to a folder named 'keys'
-fs.writeFileSync('.encrypted', export_blocks(v.blocks)); // exports encrypted result to a file named .encrypted
-fs.writeFileSync('.sec_key', export_sec_key(v.secondary_key));
-// decrypting, in a scenario where we are in a different script
-let decoded_pkey = decode_blocks(fs.readFileSync('.encrypted').toString()); // reads encrypted file + decodes it into machine-readable data
-let decoded_skey = decode_sec_key(fs.readFileSync('.sec_key').toString()); 
 
-let x = decrypt_blocks(decoded_pkey, decoded_skey, 'keys'); // decrypts machine-readable blocks into plain text
-console.log(x); // Lorem ipsum dolor sit amet...
+return { export_blocks, export_sec_key, decode_blocks, decode_sec_key, decrypt_blocks, encrypt_blocks }
