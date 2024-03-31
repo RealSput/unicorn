@@ -29,7 +29,9 @@ When ran, it will loop through each character in the block's string, find the pl
 
 There are 4,294,967,296 possible combinations for the plugboard and 115 quattuorvigintillion (2^256) possible combinations of main vectors per block, meaning that even a single block (1 min, 32 max characters) is impossible to crack with current technology. Since each block needs its own key pair, it makes it extremely resistant to bruteforce attacks. However, this is not the full amount of combinations for each block.
 
-The secondary key makes the amount of possible combinations go up even farther. Each block has its own UUID generated, and the secondary key stores the order in which each block is read by. Since there are 2^128 possible combinations for the UUID, the amount of possible combinations for each block is:
-$\ 2^{256} \times 2^{32} \times 2^{128} = 2^{256 + 32 + 128} = 2^{416} \$
+The secondary key makes the amount of possible combinations go up even farther. Each block has its own UUID generated, and the secondary key stores the order in which each block is read by. Since there are 2^122 possible combinations for the UUID, the amount of possible combinations for each block is:
+$\ 2^{256} \times 2^{32} \times 2^{122} = 2^{256 + 32 + 128} = 2^{410} \$
+
+Picture it like this: in order to bruteforce an entire string, for each block, you need to generate all possible main vector combinations (2^256 total combination). For each main vector combination, you have to generate all UUID combinations (2^122 combinations per main vector), and for each UUID combination, you need to generate all plugboard combinations (2^32 combinations per each UUID). And even if you manage to crack a single block, you still have many other blocks to go.
 
 However, this is not meant to be for serious usage; I have still not tested its security outside of bruteforce attacks and it is not bug-proof as it is very early and bugs in padding and newlines are not fixed nor do I know the cause of.
