@@ -110,21 +110,26 @@ let encrypt_blocks = (full, folder_name) => {
     fs.readdirSync(folder_name).filter(x => x.includes('block')).map(x => fs.unlinkSync(path.join(folder_name, x)));
     let blocks = full.match(/.{1,32}/g);
     let enc = [];
-    blocks.forEach((x, block_index) => {
+    let sec_key = [];
+    blocks.forEach((x) => {
+        let uid = crypto.randomUUID();
         let b = block(x);
         let e = b.pair.export(b.key.vector, b.key.plugboard);
-        fs.writeFileSync(path.join(folder_name, `block${block_index}`), e);
+        fs.writeFileSync(path.join(folder_name, `block-${uid}`), e);
         enc.push(b.encrypted);
+        sec_key.push(uid);
     });
-    return enc;
+    return { blocks: enc, secondary_key: sec_key };
 };
+let export_sec_key = (s) => s.join('​');
+let decode_sec_key = (s) => s.split('​');
 // now decrypt here without using past variables
-let decrypt_blocks = (enc, folder_name) => {
-    let ol = fs.readdirSync(folder_name).filter(x => x.includes('block')).length;
-    let d = ol;
+let decrypt_blocks = (enc, sec_key, folder_name) => {
+    // let ol = fs.readdirSync(folder_name).filter(x => x.includes('block')).length;
     let ra = [];
-    for (let i = 0; i < d; i++) {
-        let f = fs.readFileSync(path.join(folder_name, `block${i}`)).toString();
+    for (let i = 0; i < sec_key.length; i++) {
+        // loop here that goes over secondary_key and matches it with block
+        let f = fs.readFileSync(path.join(folder_name, `block-${sec_key[i]}`)).toString();
         let r2 = decode_keys(f);
         let r3 = decrypt(enc[i], r2);
         ra.push(r3);
@@ -141,5 +146,14 @@ let export_blocks = (blocks) => {
 let decode_blocks = (b) => {
     return b.split('​').map(x => x.split(' ').map(x => parseInt(x, 16)).map(x => String.fromCharCode(x)).join(''));
 }
-// 52 quinvigintillion possible combinations needed to be bruteforced for 20 paragraphs of lorem ipsum filler text (455 blocks)
-module.exports = { create_pair, block, export_blocks, decode_blocks, encrypt_blocks, decrypt_blocks };
+// encrypting
+let s = fs.readFileSync('lorem_ipsum.txt').toString(); // reads a file containing Lorem ipsum filler text
+let v = encrypt_blocks(s, 'keys'); // encrypts lorem ipsum & saves keys to a folder named 'keys'
+fs.writeFileSync('.encrypted', export_blocks(v.blocks)); // exports encrypted result to a file named .encrypted
+fs.writeFileSync('.sec_key', export_sec_key(v.secondary_key));
+// decrypting, in a scenario where we are in a different script
+let decoded_pkey = decode_blocks(fs.readFileSync('.encrypted').toString()); // reads encrypted file + decodes it into machine-readable data
+let decoded_skey = decode_sec_key(fs.readFileSync('.sec_key').toString()); 
+
+let x = decrypt_blocks(decoded_pkey, decoded_skey, 'keys'); // decrypts machine-readable blocks into plain text
+console.log(x); // Lorem ipsum dolor sit amet...
